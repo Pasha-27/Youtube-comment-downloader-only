@@ -1,7 +1,3 @@
 streamlit
 google-api-python-client
-pandas
-numpy
-scipy
-youtube-transcript-api
-openai
+python-docx
