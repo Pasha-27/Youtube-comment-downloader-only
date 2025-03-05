@@ -4,11 +4,8 @@ import io
 from googleapiclient.discovery import build
 import docx
 
-# Replace with your API key or store it in Streamlit secrets
-# You can add your API key to a file called .streamlit/secrets.toml like:
-# [youtube]
-# api_key = "YOUR_API_KEY_HERE"
-API_KEY = st.secrets["youtube"]["api_key"] if "youtube" in st.secrets else "YOUR_API_KEY_HERE"
+# Get the API key from Streamlit secrets
+API_KEY = st.secrets["YOUTUBE_API_KEY"]
 
 def extract_video_id(url):
     """
@@ -77,19 +74,22 @@ if youtube_url:
         st.error("Invalid YouTube URL. Please enter a valid URL.")
     else:
         st.info("Fetching comments... This may take a moment.")
-        comments = get_comments(video_id, API_KEY)
-        st.write(f"Retrieved {len(comments)} comments.")
+        try:
+            comments = get_comments(video_id, API_KEY)
+            st.write(f"Retrieved {len(comments)} comments.")
 
-        if comments:
-            # Sort comments by like count in descending order
-            sorted_comments = sorted(comments, key=lambda x: x["like_count"], reverse=True)
-            docx_data = create_docx(sorted_comments)
-            
-            st.download_button(
-                label="Download Comments as DOCX",
-                data=docx_data,
-                file_name="comments.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            )
-        else:
-            st.warning("No comments found for this video.")
+            if comments:
+                # Sort comments by like count in descending order
+                sorted_comments = sorted(comments, key=lambda x: x["like_count"], reverse=True)
+                docx_data = create_docx(sorted_comments)
+                
+                st.download_button(
+                    label="Download Comments as DOCX",
+                    data=docx_data,
+                    file_name="comments.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                )
+            else:
+                st.warning("No comments found for this video.")
+        except Exception as e:
+            st.error(f"An error occurred: {str(e)}")
